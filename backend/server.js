@@ -59,19 +59,20 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Production Build Serving Logic (Professional Senior Refactoring)
 if (process.env.NODE_ENV === 'production') {
-    const path = require('path');
-    const frontendPath = path.join(__dirname, '../frontend/build');
-    app.use(express.static(frontendPath));
-    app.get('*', (req, res) => {
-        // Only serve index.html if it's not an API call
-        if (!req.path.startsWith('/api')) {
-            res.sendFile(path.resolve(frontendPath, 'index.html'));
-        }
-    });
-}
+  const path = require('path');
+  const frontendPath = path.join(__dirname, '../frontend/build');
 
+  app.use(express.static(frontendPath));
+
+  // Express 5 specific wildcard syntax for SPA routing
+  app.get('(.*)', (req, res) => {
+    // Only serve index.html if it's not an API call
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.resolve(frontendPath, 'index.html'));
+    }
+  });
+}
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`[Server] Core running on port ${PORT} [Mode: ${process.env.NODE_ENV || 'development'}]`);
 });
