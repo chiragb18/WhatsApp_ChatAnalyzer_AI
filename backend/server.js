@@ -66,7 +66,7 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(frontendPath));
 
   // Express 5 specific wildcard syntax for SPA routing
-  app.get('(.*)', (req, res) => {
+  app.get('*', (req, res) => {
     // Only serve index.html if it's not an API call
     if (!req.path.startsWith('/api')) {
       res.sendFile(path.resolve(frontendPath, 'index.html'));
