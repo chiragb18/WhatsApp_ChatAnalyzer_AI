@@ -66,12 +66,17 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(frontendPath));
 
   // Express 5 specific wildcard syntax for SPA routing
-  app.get('*', (req, res) => {
+    // Express 5 specific wildcard syntax for SPA routing
+  // Use (.*) to signify a catch-all group for Express 5 compatibility
+  app.get('(.*)', (req, res) => {
     // Only serve index.html if it's not an API call
     if (!req.path.startsWith('/api')) {
+      const path = require('path');
+      const frontendPath = path.join(__dirname, '../frontend/build');
       res.sendFile(path.resolve(frontendPath, 'index.html'));
     }
   });
+
 }
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`[Server] Core running on port ${PORT} [Mode: ${process.env.NODE_ENV || 'development'}]`);
