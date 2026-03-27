@@ -179,13 +179,24 @@ const syncAllChats = async () => {
     return syncPromise;
 };
 
-// Accurate background count recalculation
+// Professional Performance: Aggregate all counts in one DB operation
 const updateAllMessageCounts = async () => {
-    const chats = await Chat.find({}, 'id');
-    for (const chat of chats) {
-        const count = await Message.countDocuments({ chatId: chat.id });
-        await Chat.updateOne({ id: chat.id }, { $set: { messageCount: count } });
-    }
+    try {
+        const counts = await Message.aggregate([
+            { $group: { _id: "$chatId", count: { $sum: 1 } } }
+        ]);
+
+        const bulkOps = counts.map(c => ({
+            updateOne: {
+                filter: { id: c._id },
+                update: { $set: { messageCount: c.count } }
+            }
+        }));
+
+        if (bulkOps.length > 0) {
+            await Chat.bulkWrite(bulkOps, { ordered: false });
+        }
+    } catch (e) { console.error('[Sync] Count aggregation failed:', e.message); }
 };
 
 const resolveSenderName = async (msg, chat) => {
