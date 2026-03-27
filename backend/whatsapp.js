@@ -18,15 +18,23 @@ const initializeWhatsApp = (io) => {
     _io = io;
     
     // Senior Backend Logic: Detect Chromium inside Railway (Nixpacks environment)
-    const executablePath = '/usr/bin/chromium' || '/usr/bin/google-chrome' || process.env.CHROME_PATH;
+    const executablePath = '/usr/bin/chromium-browser' || '/usr/bin/chromium' || '/usr/bin/google-chrome';
 
     client = new Client({
         authStrategy: new LocalAuth({ clientId: "whatsapp-ai-analyzer-session", dataPath: './.wwebjs_auth' }),
         webVersionCache: { type: 'local' },
         puppeteer: {
-            headless: true,
+            headless: 'new', // Optimized for production bots
             executablePath: executablePath,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--single-process']
+            args: [
+              '--no-sandbox', 
+              '--disable-setuid-sandbox', 
+              '--disable-gpu', 
+              '--disable-dev-shm-usage', 
+              '--single-process',
+              '--disable-extensions',
+              '--no-zygote'
+            ]
         }
     });
 

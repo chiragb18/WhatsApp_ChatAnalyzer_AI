@@ -10,6 +10,13 @@ const whatsappController = {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
       const forceRefresh = req.query.refresh === 'true';
 
+      // Senior Resiliency: Check Mongoose connection state (1 = connected)
+      const mongoose = require('mongoose');
+      if (mongoose.connection.readyState !== 1) {
+        console.warn('[API] Mongoose not ready. Returning empty state for boot.');
+        return res.status(200).json({ success: true, count: 0, data: [], note: 'Connecting to database...' });
+      }
+
       // Instant Retrieval Strategy: Check memory, fallback immediately to fast DB query
       let chats = getCachedChats();
       if (chats.length === 0) {
