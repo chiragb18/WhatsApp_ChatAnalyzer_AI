@@ -25,8 +25,12 @@ const whatsappController = {
       console.log(`⏱️ [API] getChats: ${Date.now() - start}ms | Cached: ${chats.length > 0}`);
       res.status(200).json({ success: true, count: chats.length, data: chats });
     } catch (error) {
-      console.error('getChats error:', error);
-      res.status(500).json({ success: false, error: 'Failed to fetch chats' });
+      console.error('getChats error:', error.message);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Engine Sync Failure', 
+        details: error.message 
+      });
     }
   },
 
