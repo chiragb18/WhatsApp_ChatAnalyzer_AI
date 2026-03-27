@@ -140,6 +140,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState('Initializing Engine...');
+  const [apiError, setApiError] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [chatSearchTerm, setChatSearchTerm] = useState('');
@@ -163,6 +164,7 @@ function App() {
   const fetchChats = React.useCallback(async (isManual = false) => {
     try {
       const dbResponse = await axios.get(`${API_URL}/whatsapp/chats?_=${Date.now()}`);
+      setApiError(null);
       const loadedChats = dbResponse.data.data || [];
       setChats(loadedChats);
 
@@ -180,6 +182,9 @@ function App() {
       }
     } catch (err) {
       console.error('Fetch error:', err);
+      // Display the actual error message from the engine 500 details
+      const msg = err.response?.data?.details || err.response?.data?.error || err.message;
+      setApiError(`Engine Error: ${msg}`);
     }
   }, [API_URL]);
 
@@ -366,8 +371,10 @@ function App() {
                   <Box component="img" src={qrCode} sx={{ width: 280, height: 280, display: 'block' }} />
                 ) : (
                   <Box sx={{ width: 280, height: 280, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <CircularProgress size={64} thickness={4} color="primary" sx={{ mb: 3 }} />
-                    <Typography color="#000" fontWeight="600">{loadingMessage}</Typography>
+                    <CircularProgress size={64} thickness={4} color={apiError ? "error" : "primary"} sx={{ mb: 3 }} />
+                    <Typography color={apiError ? "error.main" : "#000"} fontWeight="700" sx={{ px: 2 }}>
+                      {apiError || loadingMessage}
+                    </Typography>
                   </Box>
                 )}
               </Box>

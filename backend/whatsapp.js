@@ -98,8 +98,18 @@ const initializeWhatsApp = (io) => {
     client.on('disconnected', () => logoutAndReset());
 
     client.initialize().catch(err => {
-        console.error('Init Error:', err.message);
-        setTimeout(() => initializeWhatsApp(_io), 10000);
+        console.error('❌ [WhatsApp] Engine Initialization Error:', err.message);
+        if (_io) {
+            _io.emit('loading', { 
+                percent: 0, 
+                message: `Startup Error: ${err.message}. Ensure Chromium is installed on the server.` 
+            });
+        }
+        // Retry logic after a delay
+        setTimeout(() => {
+            console.log('[WhatsApp] Retrying Engine initialization...');
+            initializeWhatsApp(_io);
+        }, 15000);
     });
 };
 
